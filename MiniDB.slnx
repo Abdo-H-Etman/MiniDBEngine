@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="MiniDB.Cli/MiniDB.Cli.csproj" />
+  <Project Path="MiniDB.Core/MiniDB.Core.csproj" />
+  <Project Path="MiniDB.Tests/MiniDB.Tests.csproj" />
+</Solution>
