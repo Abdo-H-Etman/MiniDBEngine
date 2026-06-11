@@ -56,7 +56,7 @@ public sealed unsafe class RawPage : IDisposable
     public SlotEntry ReadSlot(int slotIndex)
     {
         ThrowIfDisposed();
-        ValidateSlotIndex(slotIndex);
+        ValidateSlotIndexForRead(slotIndex);
 
         byte* slotPtr = _ptr + PageLayout.SlotArrayOffset + slotIndex * PageLayout.SlotSize;
         return Unsafe.ReadUnaligned<SlotEntry>(slotPtr);
@@ -65,7 +65,7 @@ public sealed unsafe class RawPage : IDisposable
     public void WriteSlot(int slotIndex, in SlotEntry slot)
     {
         ThrowIfDisposed();
-        ValidateSlotIndex(slotIndex);
+        ValidateSlotIndexForWrite(slotIndex);
 
         byte* slotPtr = _ptr + PageLayout.SlotArrayOffset +
             slotIndex * PageLayout.SlotSize;
@@ -99,13 +99,20 @@ public sealed unsafe class RawPage : IDisposable
     }
 
 
-    private void ValidateSlotIndex(int index)
+    private void ValidateSlotIndexForRead(int index)
     {
         var header = ReadHeader();
         if (index < 0 || index >= header.SlotCount)
             throw new ArgumentOutOfRangeException(nameof(index),
                 $"Slot index {index} out of range (SlotCount={header.SlotCount}).");
+    }
 
+    private void ValidateSlotIndexForWrite(int index)
+    {
+        var header = ReadHeader();
+        if (index < 0 || index > header.SlotCount)
+            throw new ArgumentOutOfRangeException(nameof(index),
+                $"Slot index {index} out of range (SlotCount={header.SlotCount}).");
     }
     private void ThrowIfDisposed()
     {
