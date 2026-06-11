@@ -29,6 +29,7 @@ public readonly struct DbValue : IEquatable<DbValue>
     public bool AsBool() => _i64 != 0;
     public ulong RawBits() => _raw;
 
+    public static DbValue FromRawBits(ulong raw) => new(raw);
     public (uint offset, uint length) AsTextRef()
     {
         var offset = (uint)(_raw >> 32);
