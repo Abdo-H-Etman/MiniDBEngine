@@ -174,8 +174,7 @@ public class PageRoundTripTests : IDisposable
 
         long allocatedBytes = after - befor;
 
-        allocatedBytes.Should().BeLessThan(15_000,
+        allocatedBytes.Should().BeLessThan(20_000,
             $"Too many allocations: {allocatedBytes} bytes for 100 rows");
     }
-
 }

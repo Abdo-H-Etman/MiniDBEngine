@@ -1,6 +1,6 @@
 namespace MiniDB.Core.Types;
 
-public sealed class ResolvedValue
+public readonly struct ResolvedValue
 {
     public DbType Type { get; }
     public DbValue Value { get; }
