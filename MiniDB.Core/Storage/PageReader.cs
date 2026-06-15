@@ -13,7 +13,7 @@ public sealed class PageReader
         _page = page ?? throw new ArgumentNullException(nameof(page));
     }
 
-    public TypedValue[] ReadRow(int slotIndex, int columnCount)
+    public ResolvedValue[] ReadRow(int slotIndex, int columnCount)
     {
         ValidateColumnCount(columnCount);
 
@@ -28,7 +28,7 @@ public sealed class PageReader
         return DeserializeSlot(slot, columnCount);
     }
 
-    public TypedValue[]? TryReadRow(int slotIndex, int columnCount)
+    public ResolvedValue[]? TryReadRow(int slotIndex, int columnCount)
     {
         ValidateColumnCount(columnCount);
 
@@ -43,7 +43,7 @@ public sealed class PageReader
         return DeserializeSlot(slot, columnCount);
     }
 
-    public IEnumerable<(int slotIndex, TypedValue[] row)> ReadAllRows(int columnCount)
+    public IEnumerable<(int slotIndex, ResolvedValue[] row)> ReadAllRows(int columnCount)
     {
         ValidateColumnCount(columnCount);
 
@@ -56,9 +56,9 @@ public sealed class PageReader
         }
     }
 
-    public IEnumerable<(int slotIndex, TypedValue[] row)> ReadWhere(
+    public IEnumerable<(int slotIndex, ResolvedValue[] row)> ReadWhere(
         int columnCount,
-        Func<TypedValue[], bool> predicate
+        Func<ResolvedValue[], bool> predicate
     )
     {
         foreach (var (idx, row) in ReadAllRows(columnCount))
@@ -81,36 +81,13 @@ public sealed class PageReader
 
     public int FreeBytes => _page.ReadHeader().FreeBytes;
 
-    private TypedValue[] DeserializeSlot(in SlotEntry slot, int columnCount)
+    private ResolvedValue[] DeserializeSlot(in SlotEntry slot, int columnCount)
     {
         var rawBytes = _page.ReadSlotData(slot);
 
         var row = RowSerializer.Deserialize(rawBytes, columnCount, slot.Offset);
 
-        ResolveTextColumns(row);
-
-        return row;
-    }
-
-    private void ResolveTextColumns(TypedValue[] row)
-    {
-        for (int i = 0; i < row.Length; i++)
-        {
-            if (row[i].Type != DbType.Text) continue;
-            if (row[i].IsNull) continue;
-
-            var (pageOffset, length) = row[i].Value.AsTextRef();
-
-            if (length == 0)
-            {
-                row[i] = TypedValue.FromString(string.Empty);
-                continue;
-            }
-
-            var textSpan = _page.GetReadOnlyDataSpan((int)pageOffset, (int)length);
-            string text = Encoding.UTF8.GetString(textSpan);
-            row[i] = TypedValue.FromString(text);
-        }
+        return ResolveRow(row);
     }
 
     private static void ValidateColumnCount(int columnCount)
@@ -125,5 +102,30 @@ public sealed class PageReader
         if (slotIndex < 0 || slotIndex >= slotCount)
             throw new ArgumentOutOfRangeException(nameof(slotIndex),
                 $"Slot index {slotIndex} is out of range (SlotCount={slotCount}).");
+    }
+
+    private ResolvedValue[] ResolveRow(TypedValue[] row)
+    {
+        var result = new ResolvedValue[row.Length];
+        for (int i = 0; i < row.Length; i++)
+        {
+            if (row[i].Type == DbType.Text && !row[i].IsNull)
+            {
+                var (pageOffset, length) = row[i].Value.AsTextRef();
+                if (length == 0)
+                {
+                    result[i] = ResolvedValue.FromString(string.Empty);
+                    continue;
+                }
+                var textSpan = _page.GetReadOnlyDataSpan((int)pageOffset, (int)length);
+                result[i] = ResolvedValue.FromString(
+                    Encoding.UTF8.GetString(textSpan));
+            }
+            else
+            {
+                result[i] = ResolvedValue.FromTyped(row[i]);
+            }
+        }
+        return result;
     }
 }

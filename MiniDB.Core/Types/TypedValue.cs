@@ -3,9 +3,16 @@ using System.Runtime.InteropServices;
 namespace MiniDB.Core.Types;
 
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public readonly record struct TypedValue(DbType Type, DbValue Value)
+public readonly record struct TypedValue
 {
-    public string? ResolvedText { get; private init; }
+    public DbType Type { get; init; }
+    public DbValue Value { get; init; }
+
+    public TypedValue(DbType type, DbValue value)
+    {
+        Type = type;
+        Value = value;
+    }
     public bool IsNull => Type == DbType.Null;
 
     public static TypedValue Null => new TypedValue(DbType.Null, DbValue.Null);
@@ -14,8 +21,6 @@ public readonly record struct TypedValue(DbType Type, DbValue Value)
     public static TypedValue Of(bool value) => new TypedValue(DbType.Bool, DbValue.FromBool(value));
     public static TypedValue TextRef(uint offset, uint length) =>
         new TypedValue(DbType.Text, DbValue.FromTextRef(offset, length));
-    public static TypedValue FromString(string value) =>
-        new(DbType.Text, DbValue.FromInt64(0L)) { ResolvedText = value };
 
     public override string ToString() => Type switch
     {
