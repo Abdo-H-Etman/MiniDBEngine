@@ -90,6 +90,16 @@ public sealed unsafe class RawPage : IDisposable
         return new Span<byte>(_ptr + offset, length);
     }
 
+    public ReadOnlySpan<byte> GetReadOnlyDataSpan(int offset, int length)
+    {
+        ThrowIfDisposed();
+        if (offset < PageLayout.HeaderSize || offset + length > PageLayout.PageSize)
+            throw new ArgumentOutOfRangeException(
+                nameof(offset), $"Data span [{offset}..{offset + length}] is outside the page");
+
+        return new ReadOnlySpan<byte>(_ptr + offset, length);
+    }
+
     public byte[] ToArray()
     {
         ThrowIfDisposed();
