@@ -7,8 +7,6 @@ namespace MiniDB.Tests.Types;
 
 public class DbValueTests
 {
-    // ── size guarantees ──────────────────────────────────────────────────────
-
     [Fact]
     public void DbValue_IsExactly8Bytes() =>
         Marshal.SizeOf<DbValue>().Should().Be(8);
@@ -17,7 +15,6 @@ public class DbValueTests
     public void TypedValue_IsExactly9Bytes() =>
         Marshal.SizeOf<TypedValue>().Should().Be(9);
 
-    // ── round-trip: each type survives store → read ──────────────────────────
 
     [Fact]
     public void Int64_RoundTrip()
@@ -95,13 +92,10 @@ public class DbValueTests
         len.Should().Be(uint.MaxValue);
     }
 
-    // ── union safety: types must not bleed into each other ───────────────────
 
     [Fact]
     public void Int64_DoesNotBleedIntoFloat()
     {
-        // Storing 1L should NOT read back as 1.0 in float
-        // (they have different bit representations)
         var v = DbValue.FromInt64(1L);
 
         v.AsFloat64().Should().NotBe(1.0);
@@ -112,7 +106,6 @@ public class DbValueTests
     {
         var v = DbValue.FromFloat64(1.0);
 
-        // 1.0 in IEEE 754 is 0x3FF0000000000000 — not 1
         v.AsInt64().Should().NotBe(1L);
     }
 
@@ -122,8 +115,6 @@ public class DbValueTests
         var v = DbValue.Null;
         v.RawBits().Should().Be(0UL);
     }
-
-    // ── equality ──────────────────────────────────────────────────────────────
 
     [Fact]
     public void SameInt64_AreEqual()
@@ -149,7 +140,6 @@ public class DbValueTests
             .Be(DbValue.FromFloat64(1.5));
     }
 
-    // ── TypedValue ────────────────────────────────────────────────────────────
 
     [Fact]
     public void TypedValue_Null_IsNull()
@@ -167,7 +157,6 @@ public class DbValueTests
         tv.Value.AsInt64().Should().Be(99L);
     }
 
-    // ── DbValueOps ────────────────────────────────────────────────────────────
 
     [Fact]
     public void Compare_Int64_LessThan()
@@ -237,12 +226,10 @@ public class DbValueTests
         result.Value.AsFloat64().Should().BeApproximately(7.0, 1e-10);
     }
 
-    // ── Division ──────────────────────────────────────────────────────────────
 
     [Fact]
     public void Divide_TwoInts_Truncates()
     {
-        // Integer division truncates: 7 / 2 = 3, not 3.5
         var result = DbValueOps.Divide(TypedValue.Of(7L), TypedValue.Of(2L));
         result.Type.Should().Be(DbType.Int64);
         result.Value.AsInt64().Should().Be(3L);
@@ -293,8 +280,6 @@ public class DbValueTests
         DbValueOps.Divide(TypedValue.Null, TypedValue.Of(5L)).IsNull.Should().BeTrue();
         DbValueOps.Divide(TypedValue.Of(5L), TypedValue.Null).IsNull.Should().BeTrue();
     }
-
-    // ── Modulo ────────────────────────────────────────────────────────────────
 
     [Fact]
     public void Modulo_BasicRemainder()

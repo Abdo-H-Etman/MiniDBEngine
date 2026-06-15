@@ -7,7 +7,6 @@ namespace MiniDB.Tests.Storage;
 
 public class RowSerializerTests
 {
-    // ── CalculateSize ─────────────────────────────────────────────────────────
     [Fact]
     public void CalculateSize_ThreeColumns_NoText() =>
         RowSerializer.CalculateSize(3, 0).Should().Be(27);
@@ -16,7 +15,6 @@ public class RowSerializerTests
     public void CalculateSize_OneColumn_WithText() =>
         RowSerializer.CalculateSize(1, 5).Should().Be(14);
 
-    // ── Serialize / Deserialize round-trips ───────────────────────────────────
     [Fact]
     public void RoundTrip_Int64Row()
     {
@@ -101,11 +99,10 @@ public class RowSerializerTests
     public void TextColumn_RefIsPageRelative()
     {
         byte[] textBytes = Encoding.UTF8.GetBytes("hello");
-        TypedValue[] row = [TypedValue.TextRef(0, 0)]; // placeholder
+        TypedValue[] row = [TypedValue.TextRef(0, 0)];
         int size = RowSerializer.CalculateSize(1, textBytes.Length);
         byte[] buf = new byte[size];
 
-        // Manually create a text-typed row for serialization
         var textRow = new TypedValue[] { new(DbType.Text, DbValue.Null) };
         var texts = new[] { textBytes };
 

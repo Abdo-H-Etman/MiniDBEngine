@@ -8,7 +8,6 @@ public class RawPageTests : IDisposable
     private readonly RawPage _page = RawPage.Allocate(1);
     public void Dispose() => _page.Dispose();
 
-    // ── Allocation ───────────────────────────────────────────────────────────────
     [Fact]
     public void Allocate_CreatesPageWithCorrectId()
     {
@@ -30,7 +29,6 @@ public class RawPageTests : IDisposable
         h.SlotCount.Should().Be(0);
     }
 
-    // ── Header round-trip ─────────────────────────────────────────────────────────
     [Fact]
     public void WriteHeader_ThenReadHeader_ReturnsSameHeader()
     {
@@ -56,7 +54,6 @@ public class RawPageTests : IDisposable
         readHeader.FreeSpaceOffset.Should().Be(4000);
     }
 
-    // ── Slot entry access ─────────────────────────────────────────────────────────
     [Fact]
     public void WriteSlot_ThenReadSlot_RoundTrips()
     {
@@ -101,7 +98,6 @@ public class RawPageTests : IDisposable
             .WithMessage("*Slot index 0 out of range (SlotCount=0).*");
     }
 
-    // ── Slot data access ─────────────────────────────────────────────────────────
     [Fact]
     public void GetDataSpan_WriteData_ThenRead_ReturnsSameData()
     {
@@ -130,7 +126,6 @@ public class RawPageTests : IDisposable
             .WithMessage($"*Data span [{PageLayout.HeaderSize - 10}..{PageLayout.HeaderSize - 5}] is outside the page*");
     }
 
-    // ── ToArray / FromBytes round-trip ───────────────────────────────────────────────────────────────
     [Fact]
     public void ToArray_FromBytes_RoundTrips()
     {
@@ -162,7 +157,6 @@ public class RawPageTests : IDisposable
             );
     }
 
-    // ── Dispose ───────────────────────────────────────────────────────────────
     [Fact]
     public void AfterDispose_AccessingPage_Throws()
     {

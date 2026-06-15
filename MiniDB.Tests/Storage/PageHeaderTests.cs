@@ -31,8 +31,6 @@ public class PageHeaderTests
     {
         var h = PageHeader.Create(1);
 
-        // SlotArrayEnd = HeaderSize + 0 slots = 16
-        // FreeBytes = PageSize - 16 = 4080
         h.FreeBytes.Should().Be(
             PageLayout.PageSize - PageLayout.HeaderSize);
     }
@@ -48,8 +46,6 @@ public class PageHeaderTests
     [Fact]
     public void CanFit_EntireFreeSpace_ReturnsFalse()
     {
-        // A row exactly equal to FreeBytes won't fit
-        // because the slot entry itself also needs SlotSize bytes
         var h = PageHeader.Create(1);
 
         h.CanFit(h.FreeBytes).Should().BeFalse();

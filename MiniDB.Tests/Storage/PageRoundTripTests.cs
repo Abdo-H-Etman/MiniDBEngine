@@ -19,7 +19,6 @@ public class PageRoundTripTests : IDisposable
 
     public void Dispose() => _page.Dispose();
 
-    // ── 50-row stress test ───────────────────────────────────────────────────
     [Fact]
     public void Insert50Rows_ReadAllBack_AllMatch()
     {
@@ -54,8 +53,6 @@ public class PageRoundTripTests : IDisposable
             original[2].Value.AsInt64().Should().Be(readBack[2].Value.AsInt64());
         }
     }
-
-    // ── null columns survive round-trip ──────────────────────────────────────
 
     [Fact]
     public void NullColumns_SurviveRoundTrip()

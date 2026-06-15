@@ -14,8 +14,6 @@ public class PageWriterTests : IDisposable
 
     public void Dispose() => _page.Dispose();
 
-    // ── basic insert ──────────────────────────────────────────────────────────
-
     [Fact]
     public void Insert_SingleRow_ReturnsSlotZero()
     {
@@ -77,8 +75,6 @@ public class PageWriterTests : IDisposable
         slot.Length.Should().Be(9);
     }
 
-    // ── multiple rows ─────────────────────────────────────────────────────────
-
     [Fact]
     public void Insert_50Rows_AllGetDistinctSlots()
     {
@@ -134,8 +130,6 @@ public class PageWriterTests : IDisposable
         }
     }
 
-    // ── page full ─────────────────────────────────────────────────────────────
-
     [Fact]
     public void Insert_WhenPageFull_ReturnsMinus1()
     {
@@ -170,8 +164,6 @@ public class PageWriterTests : IDisposable
         headerAfter.SlotCount.Should().Be(headerBefore.SlotCount);
         headerAfter.FreeSpaceOffset.Should().Be(headerBefore.FreeSpaceOffset);
     }
-
-    // ── delete ────────────────────────────────────────────────────────────────
 
     [Fact]
     public void Delete_MarksSlotAsDeleted()
@@ -208,8 +200,6 @@ public class PageWriterTests : IDisposable
         _writer.LiveRowCount().Should().Be(2);
     }
 
-    // ── null and mixed types ──────────────────────────────────────────────────
-
     [Fact]
     public void Insert_NullColumns_Succeed()
     {
@@ -234,8 +224,6 @@ public class PageWriterTests : IDisposable
            .Throw<ArgumentException>();
     }
 
-    // ── text columns ──────────────────────────────────────────────────────────
-
     [Fact]
     public void Insert_TextColumn_SlotLengthIncludesTextBytes()
     {
@@ -257,8 +245,6 @@ public class PageWriterTests : IDisposable
 
         slot.Length.Should().Be(14);
     }
-
-    // ── page invariants after many inserts ───────────────────────────────────
 
     [Fact]
     public void AfterInserts_SlotArrayAndDataNeverOverlap()

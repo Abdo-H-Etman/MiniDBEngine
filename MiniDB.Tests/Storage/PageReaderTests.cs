@@ -19,8 +19,6 @@ public class PageReaderTests : IDisposable
 
     public void Dispose() => _page.Dispose();
 
-    // ── basic reads ───────────────────────────────────────────────────────────
-
     [Fact]
     public void ReadRow_SingleInt64_RoundTrips()
     {
@@ -89,8 +87,6 @@ public class PageReaderTests : IDisposable
         result[3].Type.Should().Be(DbType.Null);
     }
 
-    // ── text columns ──────────────────────────────────────────────────────────
-
     [Fact]
     public void ReadRow_Text_ResolvedToString()
     {
@@ -158,7 +154,6 @@ public class PageReaderTests : IDisposable
         result[1].ResolvedText.Should().Be("hello");
     }
 
-    // ── multiple rows ─────────────────────────────────────────────────────────
 
     [Fact]
     public void ReadRow_MultipleRows_EachCorrect()
@@ -172,8 +167,6 @@ public class PageReaderTests : IDisposable
             Assert.Equal(i, result[0].Value.AsInt64());
         }
     }
-
-    // ── deleted slots ─────────────────────────────────────────────────────────
 
     [Fact]
     public void ReadRow_Deleted_Throws()
@@ -198,8 +191,6 @@ public class PageReaderTests : IDisposable
     [Fact]
     public void TryReadRow_OutOfRange_ReturnsNull() =>
         _reader.TryReadRow(99, columnCount: 1).Should().BeNull();
-
-    // ── ReadAllRows ───────────────────────────────────────────────────────────
 
     [Fact]
     public void ReadAllRows_SkipsDeletedSlots()
@@ -238,8 +229,6 @@ public class PageReaderTests : IDisposable
         rows[1].slotIndex.Should().Be(2);
     }
 
-    // ── ReadWhere ─────────────────────────────────────────────────────────────
-
     [Fact]
     public void ReadWhere_FilterCorrecly()
     {
@@ -252,8 +241,6 @@ public class PageReaderTests : IDisposable
         rows.Count.Should().Be(4);
         rows.Should().AllSatisfy(r => r.row[0].Value.AsInt64().Should().BeGreaterThan(5));
     }
-
-    // ── metadata ──────────────────────────────────────────────────────────────
 
     [Fact]
     public void SlotCount_ReflectsInserts()
@@ -284,8 +271,6 @@ public class PageReaderTests : IDisposable
 
         (befor > after).Should().BeTrue();
     }
-
-    // ── error cases ───────────────────────────────────────────────────────────
 
     [Fact]
     public void ReadRow_OutOfRange_Trows()
