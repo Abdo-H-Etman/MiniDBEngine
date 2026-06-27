@@ -115,7 +115,7 @@ public ref struct Lexer
             throw new LexerException('!', _pos);
 
         var t = Make(TokenKind.NotEq, _pos, 2);
-        _pos++;
+        _pos += 2;
 
         return t;
     }
