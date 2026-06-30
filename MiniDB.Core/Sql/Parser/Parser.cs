@@ -437,6 +437,7 @@ public sealed class Parser
 
     private void ExpectEof()
     {
+        Match(TokenKind.Semicolon);
         if (!Check(TokenKind.Eof))
             throw Error("Unexpected trailing input after statement", _current);
     }
